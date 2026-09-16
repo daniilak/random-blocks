@@ -48,9 +48,13 @@ Fabric-мод: блоки мира становятся случайными. В
 
 ## Установка
 
-`build/libs/random-blocks-1.1.0.jar` (не `-sources`).
+Скачать: [random-blocks-1.1.0.jar](https://github.com/daniilak/random-blocks/releases/tag/v1.1.0) (не `-sources`).
+
+Либо собрать локально: `build/libs/random-blocks-1.1.0.jar`.
 
 Prism: инстанс 1.21.1 + Fabric → Mods → Fabric API и этот `.jar`. Лучше новый мир.
+
+Репозиторий: https://github.com/daniilak/random-blocks
 
 ## Сборка
 
