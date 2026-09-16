@@ -1,0 +1,21 @@
+{
+	"schemaVersion": 1,
+	"id": "randomblocks",
+	"version": "${version}",
+	"name": "Random Blocks",
+	"description": "Команда /randomblocks меняет твёрдые блоки на случайные. Воздух и пустоты не трогает.",
+	"authors": ["biklu"],
+	"license": "CC0-1.0",
+	"icon": "assets/randomblocks/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": ["com.randomblocks.RandomBlocksMod"],
+		"client": ["com.randomblocks.client.RandomBlocksClient"]
+	},
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
