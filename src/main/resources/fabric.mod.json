@@ -3,7 +3,7 @@
 	"id": "randomblocks",
 	"version": "${version}",
 	"name": "Random Blocks",
-	"description": "Команда /randomblocks меняет твёрдые блоки на случайные. Воздух и пустоты не трогает.",
+	"description": "Случайные блоки по измерениям. Масштаб 1/2/4/8/16 или весь чанк. Воздух и пустоты не трогает.",
 	"authors": ["biklu"],
 	"license": "CC0-1.0",
 	"icon": "assets/randomblocks/icon.png",

@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.network.chat.Component;
@@ -39,11 +40,12 @@ public class RandomBlocksMod implements ModInitializer {
 	public void onInitialize() {
 		RandomBlocksCommand.register();
 
+		ServerLifecycleEvents.SERVER_STARTED.register(server -> RandomBlocksApplier.rebuildPools());
 		ServerChunkEvents.CHUNK_LOAD.register(RandomBlocksMod::onChunkLoad);
 		ServerTickEvents.END_WORLD_TICK.register(RandomBlocksMod::onWorldTick);
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			handler.player.sendSystemMessage(Component.literal(
-					"Random Blocks: декор (цветы, двери) удаляется без предметов. /randomblocks border 32 — рамка, /randomblocks pregen — заранее просчитать."
+					"Random Blocks: /randomblocks scale 1|2|4|8|16|chunk — размер кубиков. Верхний мир / ад / энд — свои пулы блоков."
 			));
 		});
 

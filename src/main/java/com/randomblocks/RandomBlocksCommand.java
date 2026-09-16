@@ -3,18 +3,27 @@ package com.randomblocks;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.border.WorldBorder;
 
+import java.util.List;
+import java.util.Locale;
+
 public final class RandomBlocksCommand {
 	private static final int MAX_AROUND = 32;
 	private static final int MAX_BORDER_CHUNKS = 512;
+	private static final List<String> SCALE_OPTIONS = List.of("1", "2", "4", "8", "16", "chunk");
+	private static final SuggestionProvider<CommandSourceStack> SCALE_SUGGESTIONS =
+			(ctx, builder) -> SharedSuggestionProvider.suggest(SCALE_OPTIONS, builder);
 
 	private RandomBlocksCommand() {
 	}
@@ -43,6 +52,14 @@ public final class RandomBlocksCommand {
 									.executes(ctx -> startPregen(
 											ctx.getSource(),
 											IntegerArgumentType.getInteger(ctx, "chunks")
+									))))
+					.then(Commands.literal("scale")
+							.executes(ctx -> showScale(ctx.getSource()))
+							.then(Commands.argument("size", StringArgumentType.word())
+									.suggests(SCALE_SUGGESTIONS)
+									.executes(ctx -> setScale(
+											ctx.getSource(),
+											StringArgumentType.getString(ctx, "size")
 									))))
 					.then(Commands.literal("auto")
 							.executes(ctx -> showAuto(ctx.getSource()))
@@ -143,5 +160,52 @@ public final class RandomBlocksCommand {
 				true
 		);
 		return Command.SINGLE_SUCCESS;
+	}
+
+	private static int showScale(CommandSourceStack source) {
+		int scale = RandomBlocksState.get(source.getLevel()).getScale();
+		source.sendSuccess(
+				() -> Component.literal(
+						"Масштаб замены: " + RandomBlocksState.formatScale(scale)
+								+ ". Варианты: /randomblocks scale 1|2|4|8|16|chunk"
+				),
+				false
+		);
+		return Command.SINGLE_SUCCESS;
+	}
+
+	private static int setScale(CommandSourceStack source, String raw) {
+		Integer parsed = parseScale(raw);
+		if (parsed == null) {
+			source.sendFailure(Component.literal("Неизвестный масштаб. Используй: 1, 2, 4, 8, 16 или chunk"));
+			return 0;
+		}
+
+		RandomBlocksState state = RandomBlocksState.get(source.getLevel());
+		state.setScale(parsed);
+		source.sendSuccess(
+				() -> Component.literal(
+						"Масштаб замены: " + RandomBlocksState.formatScale(parsed)
+								+ ". Уже обработанные чанки не меняются сами — снова /randomblocks или исследуй новые."
+				),
+				true
+		);
+		return Command.SINGLE_SUCCESS;
+	}
+
+	private static Integer parseScale(String raw) {
+		String value = raw.toLowerCase(Locale.ROOT);
+		if (value.equals("chunk") || value.equals("чанка") || value.equals("чанк")) {
+			return RandomBlocksState.SCALE_CHUNK;
+		}
+		try {
+			int n = Integer.parseInt(value);
+			return switch (n) {
+				case 1, 2, 4, 8, 16 -> n;
+				default -> null;
+			};
+		} catch (NumberFormatException ignored) {
+			return null;
+		}
 	}
 }
